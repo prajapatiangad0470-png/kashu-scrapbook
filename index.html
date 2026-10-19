@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kashu's Memory Scrapbook</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #121212;
+      --paper-color: #fcf8f2;
+      --accent-color: #e63946;
+      --text-color: #2b2b2b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* --- Password Lock Screen --- */
+    #lock-screen {
+      position: fixed;
+      inset: 0;
+      background: #121212;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #lock-screen h2 {
+      font-family: 'Caveat', cursive;
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      color: #ffb703;
+    }
+
+    #lock-screen p {
+      font-size: 0.95rem;
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+
+    .pass-input {
+      padding: 12px 20px;
+      border-radius: 25px;
+      border: 1px solid #444;
+      background: #222;
+      color: #fff;
+      text-align: center;
+      font-size: 1.1rem;
+      outline: none;
+      width: 260px;
+      margin-bottom: 15px;
+    }
+
+    .btn-unlock {
+      padding: 10px 30px;
+      border-radius: 20px;
+      border: none;
+      background: var(--accent-color);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.3s;
+    }
+
+    .btn-unlock:hover {
+      transform: scale(1.05);
+      background: #d62828;
+    }
+
+    /* --- Heartbeat 70 BPM Indicator --- */
+    .heartbeat-indicator {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #aaa;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 12px;
+      border-radius: 20px;
+      backdrop-filter: blur(5px);
+    }
+
+    .heart-icon {
+      color: var(--accent-color);
+      font-size: 1.4rem;
+      animation: beat 0.857s infinite ease-in-out;
+    }
+
+    @keyframes beat {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      15% { transform: scale(1.35); opacity: 1; }
+      30% { transform: scale(1); opacity: 0.8; }
+      45% { transform: scale(1.18); opacity: 0.9; }
+    }
+
+    /* --- Main Scrapbook Area --- */
+    #scrapbook-container {
+      display: none;
+      width: 90%;
+      max-width: 480px;
+      height: 680px;
+      position: relative;
+    }
+
+    .page {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--paper-color);
+      color: var(--text-color);
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      padding: 25px;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+      border: 1px solid #e0d6c3;
+    }
+
+    .page.active {
+      display: flex;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .page-header {
+      font-family: 'Caveat', cursive;
+      font-size: 2.2rem;
+      text-align: center;
+      color: #333;
+      border-bottom: 2px dashed #ccc;
+      padding-bottom: 5px;
+    }
+
+    .polaroid-frame {
+      background: #fff;
+      padding: 12px 12px 25px 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      transform: rotate(-1.5deg);
+      margin: 15px 0;
+      text-align: center;
+      border-radius: 4px;
+    }
+
+    .polaroid-frame:nth-child(even) {
+      transform: rotate(1.5deg);
+    }
+
+    .polaroid-frame img, .polaroid-frame video {
+      width: 100%;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .caption {
+      font-family: 'Caveat', cursive;
+      font-size: 1.5rem;
+      margin-top: 10px;
+      color: #555;
+    }
+
+    .poetry-box {
+      font-family: 'Caveat', cursive;
+      font-size: 1.5rem;
+      line-height: 1.5;
+      background: #f3ebd9;
+      padding: 12px 15px;
+      border-left: 4px solid var(--accent-color);
+      border-radius: 4px;
+      margin: 10px 0;
+      color: #222;
+      text-align: center;
+    }
+
+    /* --- Navigation Controls --- */
+    .nav-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .nav-btn {
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: 0.2s;
+    }
+
+    .nav-btn:hover {
+      background: var(--accent-color);
+    }
+
+    .page-number {
+      font-size: 0.85rem;
+      color: #666;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Heartbeat Visual Indicator (70 BPM) -->
+  <div class="heartbeat-indicator">
+    <span class="heart-icon">♥</span>
+    <span>70 BPM</span>
+  </div>
+
+  <!-- Password Lock Screen -->
+  <div id="lock-screen">
+    <h2>Kashu's Memory Vault</h2>
+    <p>Kuch khas yaadein sirf aapke liye...</p>
+    <input type="password" id="password-input" class="pass-input" placeholder="Enter Password">
+    <button onclick="unlockScrapbook()" class="btn-unlock">Unlock</button>
+    <p id="error-msg" style="color: #e63946; margin-top: 12px; font-size: 0.85rem; display: none;">Galat password! Phir se try karein.</p>
+  </div>
+
+  <!-- 70 BPM Heartbeat Audio -->
+  <audio id="heartbeat-audio" loop preload="auto">
+    <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Scrapbook Container -->
+  <div id="scrapbook-container">
+
+    <!-- PAGE 1: Welcome Cover -->
+    <div class="page active" id="page-1">
+      <div class="page-header">Memory Scrapbook</div>
+      <div style="text-align: center; margin: auto;">
+        <p style="font-family: 'Caveat', cursive; font-size: 2.2rem; color: #333; line-height: 1.5;">
+          "Har ek tassveer me tum ho,<br>Har ek pal me tumhari mehak..."
+        </p>
+      </div>
+      <div class="nav-controls">
+        <button class="nav-btn" style="visibility: hidden;">Back</button>
+        <span class="page-number" id="page-num-display">Page 1</span>
+        <button class="nav-btn" onclick="changePage(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Dynamic Pages Will Be Injected Here by JavaScript -->
+    <div id="dynamic-pages"></div>
+
+  </div>
+
+  <script>
+    const SECRET_PASSWORD = "kashu"; // Password set to 'kashu'
+    let currentPage = 1;
+    let totalPages = 1; // Will calculate dynamically
+
+    // Generate 35 Photo Pages & 5 Video Pages
+    function generateScrapbookPages() {
+      const container = document.getElementById("dynamic-pages");
+      let pageIndex = 2; // Page 1 is Cover Page
+
+      // 1. Add 35 Photo Pages (Kashu1.jpg to Kashu35.jpg)
+      for (let i = 1; i <= 35; i++) {
+        const pageDiv = document.createElement("div");
+        pageDiv.className = "page";
+        pageDiv.id = `page-${pageIndex}`;
+
+        pageDiv.innerHTML = `
+          <div class="page-header">Memory #${i}</div>
+          <div class="polaroid-frame">
+            <img src="Kashu${i}.jpg" alt="Kashu Photo ${i}" onerror="this.src='https://via.placeholder.com/400x500?text=Kashu${i}.jpg'">
+            <div class="caption">Kashu #${i}</div>
+          </div>
+          <div class="poetry-box">
+            ${getPoetry(i)}
+          </div>
+          <div class="nav-controls">
+            <button class="nav-btn" onclick="changePage(-1)">← Back</button>
+            <span class="page-number">Page ${pageIndex}</span>
+            <button class="nav-btn" onclick="changePage(1)">Next →</button>
+          </div>
+        `;
+        container.appendChild(pageDiv);
+        pageIndex++;
+      }
+
+      // 2. Add 5 Video Pages (Kashu1.mp4 to Kashu5.mp4)
+      for (let j = 1; j <= 5; j++) {
+        const pageDiv = document.createElement("div");
+        pageDiv.className = "page";
+        pageDiv.id = `page-${pageIndex}`;
+
+        pageDiv.innerHTML = `
+          <div class="page-header">Video Memory #${j}</div>
+          <div class="polaroid-frame">
+            <video controls preload="metadata">
+              <source src="Kashu${j}.mp4" type="video/mp4">
+              Your browser does not support video play.
+            </video>
+            <div class="caption">Special Moment #${j}</div>
+          </div>
+          <div class="poetry-box">
+            "Waqt thehr jaata hai jab tum hasti ho..."
+          </div>
+          <div class="nav-controls">
+            <button class="nav-btn" onclick="changePage(-1)">← Back</button>
+            <span class="page-number">Page ${pageIndex}</span>
+            <button class="nav-btn" onclick="changePage(1)">Next →</button>
+          </div>
+        `;
+        container.appendChild(pageDiv);
+        pageIndex++;
+      }
+
+      // Final Letter Page
+      const finalPage = document.createElement("div");
+      finalPage.className = "page";
+      finalPage.id = `page-${pageIndex}`;
+      finalPage.innerHTML = `
+        <div class="page-header">Always In Memories</div>
+        <div style="font-family: 'Caveat', cursive; font-size: 1.7rem; line-height: 1.7; margin: auto; text-align: center;">
+          <p>"Ye saare pal hamesha mere dil ke kareeb rahenge.<br>Aap hamesha khush rahein."</p>
+          <p style="margin-top: 20px; font-weight: bold; color: var(--accent-color);">— Forever & Always</p>
+        </div>
+        <div class="nav-controls">
+          <button class="nav-btn" onclick="changePage(-1)">← Back</button>
+          <span class="page-number">Page ${pageIndex}</span>
+          <button class="nav-btn" style="visibility: hidden;">Next</button>
+        </div>
+      `;
+      container.appendChild(finalPage);
+
+      totalPages = pageIndex;
+    }
+
+    // Poetry Generator for Photos
+    function getPoetry(index) {
+      const poetryList = [
+        "Kuch panne ab bhi wahi khule hain...",
+        "Wo muskurahat jo hamesha yaad rahegi...",
+        "Teri baaton ki mehak ab bhi baki hai...",
+        "Yaadein bhi kitni ajeeb hoti hain na...",
+        "Har ek tassveer ek kahani kehti hai...",
+        "Suhane pal jo dil ke bohot kareeb hain...",
+        "Har ek lamha jo tumhare saath bita..."
+      ];
+      return poetryList[(index - 1) % poetryList.length];
+    }
+
+    // Unlock Function
+    function unlockScrapbook() {
+      const input = document.getElementById("password-input").value;
+      const errorMsg = document.getElementById("error-msg");
+      const audio = document.getElementById("heartbeat-audio");
+
+      if (input === SECRET_PASSWORD) {
+        document.getElementById("lock-screen").style.display = "none";
+        document.getElementById("scrapbook-container").style.display = "block";
+        
+        // Heartbeat Sound Play
+        audio.play().catch(e => console.log("Audio play allowed on user interaction"));
+      } else {
+        errorMsg.style.display = "block";
+      }
+    }
+
+    // Page Change Navigation
+    function changePage(direction) {
+      document.getElementById(`page-${currentPage}`).classList.remove("active");
+      currentPage += direction;
+      
+      if (currentPage < 1) currentPage = 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      document.getElementById(`page-${currentPage}`).classList.add("active");
+    }
+
+    // Initialize Pages
+    generateScrapbookPages();
+  </script>
+</body>
+</html>
